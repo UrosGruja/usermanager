@@ -1,0 +1,19 @@
+{
+  "name": "usermanager",
+  "version": "1.0.0",
+  "description": "user manager app",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/UrosGruja/usermanager.git"
+  },
+  "author": "Uros Grujicic",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/UrosGruja/usermanager/issues"
+  },
+  "homepage": "https://github.com/UrosGruja/usermanager#readme"
+}
