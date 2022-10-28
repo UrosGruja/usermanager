@@ -1,5 +1,7 @@
 const mongoose = require('mongoose');
 const geocoder = require('../geocoder');
+const jwt = require('jsonwebtoken');
+
 
 const userSchema = new mongoose.Schema({
 
@@ -32,6 +34,7 @@ const userSchema = new mongoose.Schema({
             type: [Number],
             index: '2dsphere'
         },
+        city: String
     }
 });
 
@@ -41,10 +44,17 @@ userSchema.pre('save', async function (next) {
     const loc = await geocoder.geocode(this.location);
     this.destination = {
         type: 'Point',
-        coordinates: [loc[0].longitude, loc[0].latitude]
+        coordinates: [loc[0].longitude, loc[0].latitude],
+        city: loc[0].city
     }
     this.location = undefined;
     next();
 });
+
+userSchema.methods.getSignedJwtToken = function() {
+    return jwt.sign( {id: this._id}, process.env.JWT_SECRET, {
+        expiresIn: process.env.JWT_EXPIRE
+    });
+}
 
 module.exports = mongoose.model('User', userSchema);
