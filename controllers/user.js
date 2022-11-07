@@ -1,5 +1,7 @@
 const User = require('../model/users');
 const ErrorResponse = require('../utils/errorResponse');
+const { validationResult } = require("express-validator");
+
 
 exports.getUsers = async (req, res, next) => {
     res.status(200).json(res.advancedResults);
@@ -7,6 +9,14 @@ exports.getUsers = async (req, res, next) => {
 
 exports.createUser = async (req, res, next) => {
     try {
+        const errors = validationResult(req);
+
+        if (!errors.isEmpty()) {
+            return res.status(400).json({
+                success: false,
+                errors: errors.array(),
+            });
+        }
         const user = await User.create(req.body);
 
         const token = user.getSignedJwtToken();
@@ -27,13 +37,21 @@ exports.getUser = async (req, res, next) => {
             return next(new ErrorResponse(`User not found with this id ${req.params.id}`, 400));
         }
         res.status(200).json({ success: true, data: user });
-    } catch(err) {
+    } catch (err) {
         next(new ErrorResponse(`User not found with this id ${req.params.id}`, 400));
     }
 };
 
 exports.updateUser = async (req, res, next) => {
 
+    const errors = validationResult(req);
+
+    if (!errors.isEmpty()) {
+      return res.status(400).json({
+        success: false,
+        errors: errors.array(),
+      });
+    }
     const user = await User.findByIdAndUpdate(req.params.id, req.body, {
         new: true,
         runValidators: true

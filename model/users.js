@@ -35,17 +35,15 @@ const userSchema = new mongoose.Schema({
     destination: {
         type: {
             type: String,
-            enum: ['Point'],
-            default: 'Point'
+            enum: ['Point']
         },
         coordinates: {
             type: [Number],
+            index: '2dsphere'
         },
         city: String
     }
 });
-
-userSchema.index({destination: '2dsphere'});
 
 userSchema.pre('save', async function(next) {
     const salt = await bcrypt.genSalt(10);

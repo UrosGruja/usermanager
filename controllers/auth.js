@@ -1,8 +1,18 @@
 const ErrorResponse = require('../utils/errorResponse');
 const User = require('../model/users');
+const { validationResult } = require("express-validator");
+
 
 exports.register = async (req, res, next) => {
    try{
+    const errors = validationResult(req);
+
+    if (!errors.isEmpty()) {
+      return res.status(400).json({
+        success: false,
+        errors: errors.array(),
+      });
+    }
     const { name, email, password, role, phoneNumber, location } = req.body;
 
     const user = await User.create({
@@ -53,7 +63,7 @@ const sendTokenResponse = (user, statusCode, res) => {
 
     res
         .status(statusCode)
-        .cookie('token', token, options)
+        // .cookie('token', token, options)
         .json({
             success: true,
             token
@@ -76,6 +86,14 @@ exports.deleteMe = async (req, res, next) => {
 };
 
 exports.updateDetails = async (req, res, next) => {
+    const errors = validationResult(req);
+
+    if (!errors.isEmpty()) {
+      return res.status(400).json({
+        success: false,
+        errors: errors.array(),
+      });
+    }
     const fieldsToUpdate = {
         name: req.body.name,
         email: req.body.email

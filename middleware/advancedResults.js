@@ -29,8 +29,10 @@ const advancedResults = (model) => async (req, res, next) => {
     if (req.query.sort) {
         const sortBy = req.query.sort.split(',').join(' ');
 
-        console.log(sortBy)
-        if (sortBy === 'location') {
+        if (sortBy !== 'location') {
+            query = query.sort(sortBy);
+
+        } else if (sortBy === 'location') {
             query = model.find({
                 destination: {
                     $near: {
@@ -72,7 +74,7 @@ const advancedResults = (model) => async (req, res, next) => {
             limit
         };
     }
-    if (req.query.back == 1) {
+    if (req.query.desc == 1) {
         res.advancedResults = {
             success: true,
             count: result.length,

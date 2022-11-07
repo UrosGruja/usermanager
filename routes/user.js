@@ -4,6 +4,8 @@ const { getUsers, createUser, getUser, updateUser, deleteUser } = require('../co
 const User = require('../model/users');
 const router = express.Router({ mergeParams: true });
 
+const { userDataValidator } = require("../middleware/validator");
+
 const advancedResults = require('../middleware/advancedResults');
 const { protect, authorize } = require('../middleware/auth')
 
@@ -12,10 +14,10 @@ router.use(authorize('admin'));
 
 router.route('/')
     .get(advancedResults(User), getUsers)
-    .post(createUser);
+    .post(userDataValidator, createUser);
 router.route('/:id')
     .get(getUser)
-    .put(updateUser) 
+    .put(userDataValidator, updateUser) 
     .delete(deleteUser)
 
 module.exports = router;
