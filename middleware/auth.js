@@ -20,6 +20,10 @@ exports.protect = async (req, res, next) => {
 
         req.user = await User.findById(decoded.id);
 
+        if(!req.user){
+            return next(new ErrorResponse('User not found', 400));
+        };
+
         next();
 
     } catch (err) {

@@ -1,13 +1,17 @@
 const express = require('express');
+const { getUsers, createUser, getUser, updateUser, deleteUser } = require('../controllers/user');
+
+const User = require('../model/users');
+const router = express.Router({ mergeParams: true });
+
+const advancedResults = require('../middleware/advancedResults');
 const { protect, authorize } = require('../middleware/auth')
-const { createUser, getUser, getUsers, updateUser, deleteUser } = require('../controllers/user');
-const router = express.Router();
 
 router.use(protect);
 router.use(authorize('admin'));
 
 router.route('/')
-    .get(getUsers)
+    .get(advancedResults(User), getUsers)
     .post(createUser);
 router.route('/:id')
     .get(getUser)

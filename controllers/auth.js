@@ -2,6 +2,7 @@ const ErrorResponse = require('../utils/errorResponse');
 const User = require('../model/users');
 
 exports.register = async (req, res, next) => {
+   try{
     const { name, email, password, role, phoneNumber, location } = req.body;
 
     const user = await User.create({
@@ -14,6 +15,9 @@ exports.register = async (req, res, next) => {
     });
 
     sendTokenResponse(user, 200, res);
+}catch(err){
+    console.log(err);
+}
 };
 
 exports.login = async (req, res, next) => {
@@ -59,6 +63,7 @@ const sendTokenResponse = (user, statusCode, res) => {
 exports.getMe = async (req, res, next) => {
     const user = await User.findById(req.user.id);
 
+    
     res.status(200).json({
         success: true,
         data: user
