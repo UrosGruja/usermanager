@@ -1,18 +1,8 @@
 const User = require('../model/users');
-const jwt = require('jsonwebtoken');
 const ErrorResponse = require('../utils/errorResponse');
 
 exports.getUsers = async (req, res, next) => {
-    try {
-        const users = await User.find();
-
-        res.status(200).json({
-            success: true,
-            data: users
-        });
-    } catch {
-        res.status(400).json({ success: false });
-    }
+    res.status(200).json(res.advancedResults);
 };
 
 exports.createUser = async (req, res, next) => {
