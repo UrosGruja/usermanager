@@ -42,6 +42,10 @@ const userSchema = new mongoose.Schema({
             index: '2dsphere'
         },
         city: String
+    },
+    photo: {
+        type: String,
+        default: 'default.jpg'
     }
 });
 
