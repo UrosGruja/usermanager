@@ -1,5 +1,5 @@
 const express = require('express');
-const { register, login, getMe, updateDetails, deleteMe, updatePhoto} = require('../controllers/auth');
+const { register, login, getMe, updateDetails, deleteMe, updatePhoto, updatePhotoWithUrl} = require('../controllers/auth');
 
 const { userDataValidator } = require("../middleware/validator");
 
@@ -13,6 +13,7 @@ router.get('/me', protect, getMe);
 router.put('/updetedetails', userDataValidator, protect, updateDetails);
 router.delete('/deleteme', protect, deleteMe);
 router.put('/updatephoto', protect, updatePhoto);
+router.put('/updatephotowithurl', protect, updatePhotoWithUrl);
 
 
 module.exports = router;
