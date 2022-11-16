@@ -3,7 +3,9 @@ const ErrorResponse = require('../utils/errorResponse');
 const User = require('../model/users');
 const { validationResult } = require("express-validator");
 const sendEmail = require("../utils/sendEmail");
-const { url } = require('inspector');
+const fs = require('fs');
+const Axios = require('axios');
+const { rejects } = require('assert');
 
 
 exports.register = async (req, res, next) => {
@@ -52,7 +54,6 @@ exports.login = async (req, res, next) => {
         return next(new ErrorResponse('Invalid credentials', 401));
     };
 
-
     const timeNow = Date.now();
     const today = new Date(timeNow);
 
@@ -93,12 +94,9 @@ const sendTokenResponse = (user, statusCode, res) => {
 exports.getMe = async (req, res, next) => {
     const user = await User.findById(req.user.id);
 
-    const url = `localhost:8080/uploads/${user.photo}`
-
     res.status(200).json({
         success: true,
-        data: user,
-        image: url
+        data: user
     })
 };
 exports.deleteMe = async (req, res, next) => {
@@ -170,3 +168,82 @@ exports.updatePhoto = async (req, res, next) => {
         console.log(err);
     }
 };
+function imageExists(url){
+    return new Promise((resolve, reject) => {
+        Axios({
+            method: 'HEAD',
+            url: url,
+        }).then((response) => {
+            const mimeTypes = ['image/jpeg', 'image/png'];
+            if (mimeTypes.includes(response.headers['content-type']?.toLowerCase())) {
+                return resolve(true);
+            }
+            return resolve(false);
+        }).catch((err) => {
+            reject(err);
+        });
+    })
+}
+
+async function download(url, pat) {
+
+    return new Promise((resolve, reject) => {
+        Axios({
+            method: 'GET',
+            url: url,
+            responseType: 'stream',
+        }).then((response) => {
+            response.data.pipe(fs.createWriteStream(pat))
+
+            response.data.on('end', err => {
+                console.log('download done')
+                resolve()
+            });
+
+            response.data.on('error', err => {
+                reject(err)
+            });
+        }).catch((err) => {
+            reject(err);
+        });
+    })
+};
+
+exports.updatePhotoWithUrl = async (req, res, next) => {
+    try {
+        const user = await User.findById(req.user.id);
+
+        if (!user) {
+            return next(new ErrorResponse(`User not found with id of ${req.user.id}`, 404))
+        }
+
+        if (!req.body.url) {
+            return next(new ErrorResponse('Please add url photo', 400));
+        }
+        const url = req.body.url;
+
+        const isImage = await imageExists(url);
+        if (!isImage) {
+            return res.status(400).json({
+                success: false,
+                msg: 'Provided URL is not a valid image'
+            });
+        }
+
+        const pat = path.resolve(`${process.env.FILE_UPLOAD_PATH}`, `photo_${user.id}${path.parse(req.body.url).ext}`);
+
+
+        console.log('pre download')
+        await download(url, pat);
+        console.log('after download')
+        await User.findByIdAndUpdate(user.id, { photo: `photo_${user.id}${path.parse(req.body.url).ext}` });
+
+        res.status(200).json({
+            success: true
+        });
+    } catch (err) {
+        res.status(400).json({
+            success: false
+        })
+    }
+}

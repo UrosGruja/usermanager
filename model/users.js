@@ -38,8 +38,7 @@ const userSchema = new mongoose.Schema({
             enum: ['Point']
         },
         coordinates: {
-            type: [Number],
-            index: '2dsphere'
+            type: [Number]
         },
         city: String
     },
@@ -48,6 +47,10 @@ const userSchema = new mongoose.Schema({
         default: 'default.jpg'
     }
 });
+
+
+userSchema.index({destination: '2dsphere'});
+
 
 userSchema.pre('save', async function(next) {
     const salt = await bcrypt.genSalt(10);

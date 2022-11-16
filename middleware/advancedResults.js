@@ -33,7 +33,7 @@ const advancedResults = (model) => async (req, res, next) => {
             query = query.sort(sortBy);
 
         } else if (sortBy === 'location') {
-            query = model.find({
+            query =  model.find({
                 destination: {
                     $near: {
                         $geometry: {
@@ -58,7 +58,9 @@ const advancedResults = (model) => async (req, res, next) => {
 
     query = query.skip(startIndex).limit(limit);
 
+
     const result = await query;
+
 
     const pagination = {};
 
